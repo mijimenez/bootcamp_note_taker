@@ -6,6 +6,15 @@ This is a command-line application that can be used to write, save, and delete n
 
 ![Demo](./public/assets/gifs/note_taker_demo.gif)
 
+## Live Link
+- Launch the application [here](https://aqueous-reaches-44467.herokuapp.com/)
+
+## Technologies Used
+- JavaScript
+- Node.js
+- npm
+- Express
+
 ## Instructions
 
 Initialize with required npm packages using this command:
