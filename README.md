@@ -20,7 +20,7 @@ The application will be invoked with the following command:
 node server.js
 ```
 
-The user will be able to:
+Via http://localhost:8080/, the user will be able to do the following in the browser:
 
 * Create new notes
 * View notes
