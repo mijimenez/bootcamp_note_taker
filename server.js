@@ -10,7 +10,7 @@ const writeFileAsync = util.promisify(fs.writeFile);
 // Sets up the Express App
 // =============================================================
 const app = express();
-const PORT = 3000;
+const PORT = process.env.PORT || 8080;
 
 // Sets up the Express app to handle data parsing
 app.use(express.urlencoded({ extended: true }));
