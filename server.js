@@ -3,6 +3,9 @@ const path = require("path");
 const fs = require("fs");
 const util = require("util");
 
+const readFileAsync = util.promisify(fs.readFile);
+const writeFileAsync = util.promisify(fs.writeFile);
+
 
 // Sets up the Express App
 // =============================================================
@@ -12,14 +15,11 @@ const PORT = 3000;
 // Sets up the Express app to handle data parsing
 app.use(express.urlencoded({ extended: true }));
 app.use(express.json());
+app.use(express.static("public"));
 
 
-// Reservation POST (DATA)
-// =============================================================
-const notes = [];
 
-
-// Routes
+// HTML Routes
 // =============================================================
 // Basic route that sends the user first to the Home Page
 app.get("/", function(req, res) {
@@ -32,29 +32,51 @@ app.get("/notes", function(req, res) {
 });
 
 
-// Displays all notes
+// API Routes
+// =============================================================
+// API route that reads the json file with notes
 app.get("/api/notes", function(req, res) {
-    return res.json(notes);
+    readFileAsync("./db/db.json", "utf8").then(function(data) {
+        data = JSON.parse(data);
+        // console.log(data)
+        return res.json(data);
+    });
 });
-
-
-// Create new notes - takes in JSON input
+  
+// API route that allows user to add new note, updates json data and displays on browser
 app.post("/api/notes", function(req, res) {
-// req.body hosts is equal to the JSON post sent from the user
-    // This works because of our body parsing middleware
     const newNote = req.body;
 
-    // Using a RegEx Pattern to remove spaces from newNote
-    // You can read more about RegEx Patterns later https://www.regexbuddy.com/regex.html
-    newNote.routeName = newNote.name.replace(/\s+/g, "").toLowerCase();
-
-    console.log(newNote);
-
-    notes.push(newNote);
-
-    res.json(newNote);
+    // Read and push new note to json data
+    readFileAsync("./db/db.json", "utf8").then(function(data) { 
+        data = JSON.parse(data);
+        data.push(newNote);
+        data[data.length - 1].id = data.length - 1;
+        // Update and write the json data with new notes
+        writeFileAsync("./db/db.json", JSON.stringify(data));
+        res.json(data);
+        console.log("Note succesfully created!");
+    });
 });
 
+// API route that allows user to delete a note and updates json data
+app.delete("/api/notes/:id", function(req, res) {
+    const selectedNoteId = req.params.id;
+    // console.log(selectedNoteId);
+    // Read and remove new note to json data
+    readFileAsync("./db/db.json", "utf8").then(function(data) {
+        // Turn data object into string, splice selected Note by id to remove from array and reset index.
+        data = JSON.parse(data);
+        data.splice(selectedNoteId, 1);
+        for (var i = 0; i < data.length; i++) {
+            data[i].id = i;
+        }
+        // Update the json data with removed notes
+        writeFileAsync("./db/db.json", JSON.stringify(data));
+        res.json(data);
+        console.log("Note succesfully removed!");
+    });
+});
 
 // Starts the server to begin listening
 // =============================================================
